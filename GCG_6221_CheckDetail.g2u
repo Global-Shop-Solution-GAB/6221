@@ -1,0 +1,808 @@
+﻿Program.Sub.ScreenSU.Start
+Gui.frmAPCheck..Create(BaseForm)
+Gui.frmAPCheck..Caption("Check Detail Dashboard")
+Gui.frmAPCheck..Size(23985,11970)
+Gui.frmAPCheck..MinX(15045)
+Gui.frmAPCheck..MinY(10095)
+Gui.frmAPCheck..Position(0,0)
+Gui.frmAPCheck..BackColor(-2147483633)
+Gui.frmAPCheck..MousePointer(0)
+Gui.frmAPCheck..Event(UnLoad,UnLoad)
+Gui.frmAPCheck..AlwaysOnTop(False)
+Gui.frmAPCheck..FontName("Tahoma")
+Gui.frmAPCheck..FontSize(8.25)
+Gui.frmAPCheck..ControlBox(True)
+Gui.frmAPCheck..MaxButton(True)
+Gui.frmAPCheck..MinButton(True)
+Gui.frmAPCheck..Moveable(True)
+Gui.frmAPCheck..Sizeable(True)
+Gui.frmAPCheck..ShowInTaskBar(True)
+Gui.frmAPCheck..TitleBar(True)
+Gui.frmAPCheck.GSGCAPCheck.Create(GsGridControl)
+Gui.frmAPCheck.GSGCAPCheck.Size(23850,9990)
+Gui.frmAPCheck.GSGCAPCheck.Position(30,1215)
+Gui.frmAPCheck.GSGCAPCheck.TabStop(True)
+Gui.frmAPCheck.GSGCAPCheck.TabIndex(4)
+Gui.frmAPCheck.GSGCAPCheck.Event(RowCellClick,GSGCAPCheck_RowCellClick)
+Gui.frmAPCheck.GSGCAPCheck.Enabled(True)
+Gui.frmAPCheck.GSGCAPCheck.Visible(True)
+Gui.frmAPCheck.GSGCAPCheck.Zorder(0)
+Gui.frmAPCheck.picGSSLogo.Create(PictureBox)
+Gui.frmAPCheck.picGSSLogo.Size(4125,960)
+Gui.frmAPCheck.picGSSLogo.Position(11115,120)
+Gui.frmAPCheck.picGSSLogo.Enabled(True)
+Gui.frmAPCheck.picGSSLogo.Visible(True)
+Gui.frmAPCheck.picGSSLogo.Zorder(0)
+Gui.frmAPCheck.dtpBegDate.Create(DatePicker)
+Gui.frmAPCheck.dtpBegDate.Size(1935,285)
+Gui.frmAPCheck.dtpBegDate.Position(930,345)
+Gui.frmAPCheck.dtpBegDate.Enabled(True)
+Gui.frmAPCheck.dtpBegDate.Visible(True)
+Gui.frmAPCheck.dtpBegDate.Zorder(0)
+Gui.frmAPCheck.dtpBegDate.CheckBox(False)
+Gui.frmAPCheck.dtpBegDate.FontName("Tahoma")
+Gui.frmAPCheck.dtpBegDate.FontSize(7.8)
+Gui.frmAPCheck.dtpEndDate.Create(DatePicker)
+Gui.frmAPCheck.dtpEndDate.Size(1935,285)
+Gui.frmAPCheck.dtpEndDate.Position(930,690)
+Gui.frmAPCheck.dtpEndDate.Enabled(True)
+Gui.frmAPCheck.dtpEndDate.Visible(True)
+Gui.frmAPCheck.dtpEndDate.Zorder(0)
+Gui.frmAPCheck.dtpEndDate.CheckBox(False)
+Gui.frmAPCheck.dtpEndDate.FontName("Tahoma")
+Gui.frmAPCheck.dtpEndDate.FontSize(7.8)
+Gui.frmAPCheck.cmd1.Create(Button)
+Gui.frmAPCheck.cmd1.Size(855,375)
+Gui.frmAPCheck.cmd1.Position(3075,465)
+Gui.frmAPCheck.cmd1.Caption("REFRESH")
+Gui.frmAPCheck.cmd1.Event(Click,MenuClickRefresh)
+Gui.frmAPCheck.cmd1.Enabled(True)
+Gui.frmAPCheck.cmd1.Visible(True)
+Gui.frmAPCheck.cmd1.Zorder(0)
+Gui.frmAPCheck.cmd1.FontName("Tahoma")
+Gui.frmAPCheck.cmd1.FontSize(7.8)
+Gui.frmAPCheck.lbl1.Create(Label,"Enter Check Date Range:",True,1935,255,0,915,150,True,0,"Arial",8,-2147483633,0,0)
+Gui.frmAPCheck.lbl1.BorderStyle(0)
+Gui.frmAPCheck.lbl2.Create(Label,"Label",False,1935,255,0,4365,585,True,0,"Arial",8,-2147483633,0,0)
+Gui.frmAPCheck.lbl2.ForeColor(255)
+Gui.frmAPCheck.lbl2.BorderStyle(0)
+Gui.frmAPCheck.lblChecktotal.Create(Label,"Check Count",False,1935,255,0,4365,855,True,0,"Arial",8,-2147483633,0,0)
+Gui.frmAPCheck.lblChecktotal.BorderStyle(0)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+V.Global.sDATE_CHECKRev.Declare 
+V.Global.bLoadDate.Declare
+V.Global.bLoadData.Declare
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'Brady Stevens
+'custom AP check review dashboard
+
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+	V.Local.sGSSLogo.Declare
+	V.Local.sIcon.Declare
+	V.Local.sDir.Declare
+	V.Local.bDir.Declare
+	
+
+	F.ODBC.Connection!con.OpenCompanyConnection(1200)
+
+	F.Intrinsic.String.Build("{0}\GAB\GAS\gss2.ico",V.Caller.PluginsDir,v.Local.sIcon)
+	F.Intrinsic.String.Build("{0}\GAB\GAS\GAB_GSS_Logo_Green_Dash.png",V.Caller.PluginsDir,V.Local.sGssLogo)
+	Gui.frmAPCheck.picGSSLogo.Picture(V.Local.sGSSLogo)
+	Gui.frmAPCheck..Icon(V.Local.sIcon)
+	
+	F.Intrinsic.Control.CallSub(SetAnchors)
+	F.Intrinsic.Control.CallSub(SetContextMenus)
+	F.Intrinsic.Control.CallSub(LoadDtAPChecks)
+'	F.Intrinsic.Control.CallSub(LoadAPChecksGV)
+	F.Intrinsic.Control.CallSub(Deserialize)
+	
+	Gui.frmAPCheck..Show
+	F.Intrinsic.Control.EndSelect
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+	F.Intrinsic.Control.EndTry
+Program.Sub.Main.End
+
+Program.Sub.UnLoad.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	F.Intrinsic.Control.If(V.Global.bLoadDate)
+		F.Intrinsic.Control.CallSub(Serialize)
+	F.Intrinsic.Control.EndIf
+	
+	F.ODBC.Connection!con.Close
+	F.Intrinsic.Control.End
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+	F.Intrinsic.Control.EndTry
+Program.Sub.UnLoad.End
+
+Program.Sub.Serialize.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+	V.Local.sSerialize.Declare
+	
+	'gvAPCheck
+	Gui.frmAPCheck.GSGCAPCheck.Serialize("gvAPCheck",V.Local.sSerialize)
+	F.Global.Registry.AddValue(V.Caller.User,V.Caller.CompanyCode,"gvAPCheck",6221,1000,False,"Serialize",False,0,-999.0,1/1/1980,12:00:00 AM,V.Local.sSerialize)
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+	F.Intrinsic.Control.EndTry
+Program.Sub.Serialize.End
+
+Program.Sub.SetAnchors.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+	'0 - None
+	'1 - Top
+	'2 - Bottom
+	'4 - Left
+	'8 - Right
+	
+	Gui.frmAPCheck.picGssLogo.Anchor(1)
+	Gui.frmAPCheck.GSGCAPCheck.Anchor(15)
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+	F.Intrinsic.Control.EndTry
+Program.Sub.SetAnchors.End
+
+Program.Sub.LoadDtAPChecks.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	V.Local.sSQL.Declare
+	V.Local.iCnt.Declare
+	V.Local.fVar.Declare
+	V.Local.fExt.Declare
+	V.Local.sShip.Declare
+	V.Local.sIss.Declare
+	
+	F.Intrinsic.Control.If(V.DataTable.DTAPCHECKS.Exists)
+		F.Data.DataTable.Close("DTAPCHECKS")
+	F.Intrinsic.Control.EndIf
+	
+	V.Global.bLoadDate.Set(True)
+	V.Global.bLoadData.Set(True)
+	
+
+'	f.Intrinsic.String.Build("select A.CHECK_NUM,A.DATE_CHECK,A.BATCH_NUM,A.VENDOR,B.NAME_VENDOR,'' AS DocCntrlI,A.INVOICE,'' AS DocCntrlP,CASE WHEN RIGHT(('0000000'+RTRIM(A.PURCHASE_ORDER)),7) = '0000000' THEN '' ELSE RIGHT(('0000000'+RTRIM(A.PURCHASE_ORDER)),7) END AS PO,'' AS DocCntrlR,A.RECEIVER,A.CHECK_DESC,A.AMT_TRANSACTION,A.AMT_TRANSACTION-DISCOUNT_INVOICE AS AMT_NET,A.DISCOUNT_INVOICE,A.USERID,rtrim(A.vendor)+rtrim(A.invoice) AS VENDINV from V_AP_OPEN_ITEMS A LEFT JOIN V_VENDOR_MASTER B ON A.VENDOR=B.VENDOR WHERE DATE_CHECK >= '{0}' AND DATE_CHECK <= '{1}' ORDER BY CHECK_NUM",V.Screen.frmAPCheck!dtpBegDate.Value.PervasiveDate,V.Screen.frmAPCheck!dtpEndDate.Value.PervasiveDate,V.Local.sSQL)
+
+	'f.Intrinsic.String.Build("select A.CHECK_NUM,A.DATE_CHECK,A.BATCH_NUM,A.VENDOR,B.NAME_VENDOR,'' AS DocCntrlI,A.INVOICE,'' AS DocCntrlP,CASE WHEN RIGHT(('0000000'+RTRIM(A.PURCHASE_ORDER)),7) = '0000000' THEN '' ELSE RIGHT(('0000000'+RTRIM(A.PURCHASE_ORDER)),7) END AS PO,'' AS DocCntrlR,A.RECEIVER,A.CHECK_DESC,C.CHECK_GROSS_CMPNY AS AMT_TRANSACTION,C.CHECK_NET_CMPNY AS AMT_NET,C.CHECK_DISC_CMPNY AS DISCOUNT_INVOICE,C.USERID,CASE TRAN_TYPE WHEN '18' THEN 'CHECK RUN' WHEN '32' THEN 'MANUAL/QUICK' WHEN '31' THEN 'VOID' ELSE '' END AS TYPE,C.LAST_CHG_TIME AS CHECK_TIME,C.PARTIAL_FLAG,C.REFUND_FLAG,C.PAYMENT_CURR,C.POST_DATE_SQL AS POST_DATE,rtrim(A.vendor)+rtrim(A.invoice) AS VENDINV from V_AP_OPEN_ITEMS A LEFT JOIN V_VENDOR_MASTER B ON A.VENDOR=B.VENDOR LEFT JOIN V_GL_AP_CHECK_DTL C ON A.VENDOR=C.CUST_VENDOR AND A.BATCH_NUM=C.BATCH AND A.INVOICE=C.INVOICE_NO WHERE A.DATE_CHECK >= '{0}' AND A.DATE_CHECK <= '{1}' AND TYPE <> '' ORDER BY A.CHECK_NUM",V.Screen.frmAPCheck!dtpBegDate.Value.PervasiveDate,V.Screen.frmAPCheck!dtpEndDate.Value.PervasiveDate,V.Local.sSQL)
+	
+'	f.Intrinsic.String.Build("select A.CHECK_NUM,A.DATE_CHECK,A.BATCH_NUM,A.VENDOR,B.NAME_VENDOR,'' AS DocCntrlI,A.INVOICE,'' AS DocCntrlP,CASE WHEN RIGHT(('0000000'+RTRIM(A.PURCHASE_ORDER)),7) = '0000000' THEN '' ELSE RIGHT(('0000000'+RTRIM(A.PURCHASE_ORDER)),7) END AS PO,'' AS DocCntrlR,A.RECEIVER,A.CHECK_DESC,F.AMOUNT_CMPNY AS AMT_TRANSACTION,C.CHECK_NET_CMPNY AS AMT_NET,C.CHECK_DISC_CMPNY AS DISCOUNT_INVOICE,C.USERID,CASE C.TRAN_TYPE WHEN '18' THEN 'CHECK RUN' WHEN '32' THEN 'MANUAL/QUICK' WHEN '31' THEN 'VOID' ELSE '' END AS TYPE,C.LAST_CHG_TIME AS CHECK_TIME,C.PARTIAL_FLAG,C.REFUND_FLAG,C.PAYMENT_CURR,C.POST_DATE_SQL AS POST_DATE,rtrim(A.vendor)+rtrim(A.invoice) AS VENDINV, F.GL_NUMBER AS GL, D.DESCR AS GL_DESC, '' as TEXT from V_GL_AP_CHECK_DTL C LEFT JOIN V_VENDOR_MASTER B ON C.CUST_VENDOR=B.VENDOR LEFT JOIN V_AP_OPEN_ITEMS A ON C.CUST_VENDOR=A.VENDOR AND C.BATCH=A.BATCH_NUM AND C.INVOICE_NO=A.INVOICE LEFT JOIN V_GL_AP_DETAIL F ON F.VENDOR = A.VENDOR AND F.INVOICE_NO = A.INVOICE AND F.PO_NUM = A.PURCHASE_ORDER LEFT JOIN V_GL_MASTER D ON D.GL_ACCOUNT = F.GL_NUMBER WHERE A.DATE_CHECK >= '{0}' AND A.DATE_CHECK <= '{1}' AND TYPE <> '' AND f.Pay_Sel = 0 ORDER BY A.CHECK_NUM",V.Screen.frmAPCheck!dtpBegDate.Value.PervasiveDate,V.Screen.frmAPCheck!dtpEndDate.Value.PervasiveDate,V.Local.sSQL)
+	
+	f.Intrinsic.String.Build("select A.CHECK_NUM,A.DATE_CHECK,A.BATCH_NUM,A.VENDOR,f.vendor_name as NAME_VENDOR,'' AS DocCntrlI,A.INVOICE,'' AS DocCntrlP,CASE WHEN RIGHT(('0000000'+RTRIM(A.PURCHASE_ORDER)),7) = '0000000' THEN '' ELSE RIGHT(('0000000'+RTRIM(A.PURCHASE_ORDER)),7) END AS PO,'' AS DocCntrlR,A.RECEIVER,A.CHECK_DESC,F.AMOUNT_CMPNY AS AMT_TRANSACTION,C.CHECK_NET_CMPNY AS AMT_NET,C.CHECK_DISC_CMPNY AS DISCOUNT_INVOICE,C.USERID,CASE C.TRAN_TYPE WHEN '18' THEN 'CHECK RUN' WHEN '32' THEN 'MANUAL/QUICK' WHEN '31' THEN 'VOID' ELSE '' END AS TYPE,C.LAST_CHG_TIME AS CHECK_TIME,C.PARTIAL_FLAG,C.REFUND_FLAG,C.PAYMENT_CURR,C.POST_DATE_SQL AS POST_DATE,rtrim(A.vendor)+rtrim(A.invoice) AS VENDINV, F.GL_NUMBER AS GL, '' AS GL_DESC, '' as TEXT, F.AMOUNT_CMPNY-C.CHECK_DISC_CMPNY AS NET_CK_AMT from V_GL_AP_CHECK_DTL C LEFT JOIN V_AP_OPEN_ITEMS A ON C.CUST_VENDOR=A.VENDOR AND C.BATCH=A.BATCH_NUM AND C.INVOICE_NO=A.INVOICE LEFT JOIN V_GL_AP_DETAIL F ON F.VENDOR = A.VENDOR AND F.INVOICE_NO = A.INVOICE WHERE A.DATE_CHECK >= '{0}' AND A.DATE_CHECK <= '{1}' AND TYPE <> '' AND f.Pay_Sel = 0 ORDER BY A.CHECK_NUM",V.Screen.frmAPCheck!dtpBegDate.Value.PervasiveDate,V.Screen.frmAPCheck!dtpEndDate.Value.PervasiveDate,V.Local.sSQL)
+	'AMT_TRANSACTION-DISCOUNT_INVOICE
+	'get check count
+	F.Data.DataTable.CreateFromSQL("DTAPCHECKS","con",V.Local.sSQL,True)
+	F.Data.DataView.Create("DTAPCHECKS","DVAPCHECKS")
+	Function.Data.DataView.ToDataTableDistinct("DTAPCHECKS","DVAPCHECKS","DTCHECKSDISTINCT","CHECK_NUM")
+	v.Local.scheckcount.Declare()
+	f.Intrinsic.String.Concat("Check Count: ",V.DataTable.DTCHECKSDISTINCT.RowCount,v.Local.scheckcount)
+	gui.frmAPCheck.lblChecktotal.Caption(v.Local.scheckcount)
+	
+	'Fill in invoice notes via dictionary
+	f.Data.Dictionary.CreateFromSQL("dictInvcNotes","con","select vendor+invoice as VI, text from v_ap_invc_notes")
+	f.Data.Dictionary.SetDefaultReturn("dictInvcNotes","")
+	f.Data.DataTable.FillFromDictionary("DTAPCHECKS","dictInvcNotes","VENDINV","Text")
+	f.Data.Dictionary.Close("dictInvcNotes")
+	
+	'Fill in GL description
+	f.Data.Dictionary.CreateFromSQL("dictGLDesc","con","select gl_account, descr from v_gl_master")
+	f.Data.Dictionary.SetDefaultReturn("dictGLDesc","")
+	f.Data.DataTable.FillFromDictionary("DTAPCHECKS","dictGLDesc","GL","GL_DESC")
+	f.Data.Dictionary.Close("dictGLDesc")
+	
+'	'Fill in vendor name
+'	f.Data.Dictionary.CreateFromSQL("dictVendor","con","select vendor, name_vendor from V_VENDOR_MASTER")
+'	f.Data.Dictionary.SetDefaultReturn("dictVendor","")
+'	f.Data.DataTable.FillFromDictionary("DTAPCHECKS","dictVendor","VENDOR","NAME_VENDOR")
+'	f.Data.Dictionary.Close("dictVendor")
+			
+	'Set Doc Control Columns
+	'Invoice
+	F.Data.DataTable.SetValue("DTAPCHECKS",-1,"DocCntrlI","DCS-OFF")
+	F.Data.Dictionary.CreateFromSQL("dDCC","con","Select RTrim(ID) As VENDINV,'DCS-ON' As DCC From Link_Data Where Type = '00011'")
+	F.Data.Dictionary.SetDefaultReturn("dDCC","DCS-OFF")
+	F.Data.DataTable.FillFromDictionary("DTAPCHECKS","dDCC","VENDINV","DocCntrlI")
+	F.Data.Dictionary.Close("dDCC")
+
+	'PO
+	F.Data.DataTable.SetValue("DTAPCHECKS",-1,"DocCntrlP","DCS-OFF")
+	F.Data.Dictionary.CreateFromSQL("dDCC","con","Select RTrim(ID) As PURCHASE_ORDER,'DCS-ON' As DCC From Link_Data Where Type = '00060'")
+	F.Data.Dictionary.SetDefaultReturn("dDCC","DCS-OFF")
+	F.Data.DataTable.FillFromDictionary("DTAPCHECKS","dDCC","PO","DocCntrlP")
+	F.Data.Dictionary.Close("dDCC")
+
+	'get receiver no from first receipt against PO
+	F.Data.DataTable.SetValue("DTAPCHECKS",-1,"RECEIVER","")
+	F.Data.Dictionary.CreateFromSQL("dreceiver","con","Select PURCHASE_ORDER,RECEIVER From V_ap_open_items Where batch_code = '09' and receiver <> '' order by INVOICE")	
+	F.Data.Dictionary.SetDefaultReturn("dreceiver","")
+	F.Data.DataTable.FillFromDictionary("DTAPCHECKS","dreceiver","PO","RECEIVER")
+	F.Data.Dictionary.Close("dreceiver")
+
+	'receiver
+	F.Data.DataTable.AddExpressionColumn("DTAPCHECKS","RECVRPO",String,"TRIM(RECEIVER) + TRIM(PO) + '001'")
+	F.Data.DataTable.SetValue("DTAPCHECKS",-1,"DocCntrlR","DCS-OFF")
+	F.Data.Dictionary.CreateFromSQL("dDCC","con","Select RTrim(ID) As RECVRPO,'DCS-ON' As DCC From Link_Data Where Type = '00061'")
+	F.Data.Dictionary.SetDefaultReturn("dDCC","DCS-OFF")
+	F.Data.DataTable.FillFromDictionary("DTAPCHECKS","dDCC","RECVRPO","DocCntrlR")
+	F.Data.Dictionary.Close("dDCC")
+	
+	gui.frmAPCheck.lbl2.Visible(True)
+	gui.frmAPCheck.lbl2.Caption("Loading Checks...")
+	
+	F.Intrinsic.Control.CallSub(LoadAPChecksGV)
+	
+	gui.frmAPCheck.lbl2.Visible(False)
+	gui.frmAPCheck.lblChecktotal.Visible(False)
+
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+	F.Intrinsic.Control.EndTry
+Program.Sub.LoadDtAPChecks.End
+
+Program.Sub.LoadAPChecksGV.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	V.Local.sRet.Declare
+	
+	gui.frmAPCheck.lbl2.Visible(True)
+	gui.frmAPCheck.lbl2.Caption("Loading Checks...")
+	
+	Gui.frmAPCheck.GSGCAPCheck.AddGridviewFromDatatable("gvAPCheck","DTAPCHECKS")
+	Gui.frmAPCheck.GSGCAPCheck.SuspendLayout()
+	Gui.frmAPCheck.GSGCAPCheck.SetGridviewProperty("gvAPCheck","AllowSort",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetGridviewProperty("gvAPCheck","AllowFilter",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetGridviewProperty("gvAPCheck","OptionsViewShowGroupPanel",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetGridviewProperty("gvAPCheck","EnableAppearanceOddRow",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetGridviewProperty("gvAPCheck", "ExpandAllGroups", True)
+	
+	Gui.frmAPCheck.GSGCAPCheck.BestFitColumns("gvAPCheck")
+	Gui.frmAPCheck.GSGCAPCheck.SetGridviewProperty("gvAPCheck","OptionsViewColumnAutoWidth",False)
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_NUM","Caption","CHECK_NUM")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_NUM","DisplayCustomNumeric","#,###,###,##0.00")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_NUM","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_NUM","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_NUM","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_NUM","AllowGroup",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_NUM","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_NUM","MinWidth","95")	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_NUM","VisibleIndex","0")
+
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DATE_CHECK","Caption","DATE_CHECK")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DATE_CHECK","DisplayCustomDateTime","d")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DATE_CHECK","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DATE_CHECK","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DATE_CHECK","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DATE_CHECK","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DATE_CHECK","MinWidth","85")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DATE_CHECK","VisibleIndex","1")
+		
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","BATCH_NUM","Caption","BATCH_NUM")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","BATCH_NUM","DisplayCustomNumeric","#,###,###,##0.00")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","BATCH_NUM","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","BATCH_NUM","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","BATCH_NUM","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","BATCH_NUM","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","BATCH_NUM","MinWidth","85")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","BATCH_NUM","VisibleIndex","2")
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","VENDOR","Caption","VENDOR")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","VENDOR","DisplayCustomNumeric","#,###,###,##0.00")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","VENDOR","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","VENDOR","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","VENDOR","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","VENDOR","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","VENDOR","MinWidth","85")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","VENDOR","VisibleIndex","3")
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","NAME_VENDOR","Caption","NAME_VENDOR")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","NAME_VENDOR","DisplayCustomNumeric","#,###,###,##0.00")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","NAME_VENDOR","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","NAME_VENDOR","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","NAME_VENDOR","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","NAME_VENDOR","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","NAME_VENDOR","MinWidth","175")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","NAME_VENDOR","VisibleIndex","4")
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlI","Icon","DCS-OFF")
+'	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlI","Fixed","Left")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlI","MinWidth","25")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlI","MaxWidth","25")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlI","AllowEdit",False)
+'	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlI","ShowCaption",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlI","VisibleIndex","5")
+	
+	V.Local.sSelect.Declare
+	V.Local.iCnt.Declare
+	F.Data.DataTable.Select("DTAPCHECKS","DocCntrlI = 'DCS-ON'",V.Local.sSelect)
+	F.Intrinsic.Control.If(V.Local.sSelect.IsNotNoReturn)
+		F.Intrinsic.String.Split(V.Local.sSelect,"*!*",V.Local.sSelect)
+		F.Intrinsic.Control.For(V.Local.iCnt,0,V.Local.sSelect.UBound,1)
+			Gui.frmAPCheck.GSGCAPCheck.SetCellAppearance("gvAPCheck",5,V.Local.sSelect(V.Local.iCnt),"Icon","DCS-ON")
+		F.Intrinsic.Control.Next(V.Local.iCnt)
+	F.Intrinsic.Control.EndIf
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","INVOICE","Caption","INVOICE")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","INVOICE","DisplayCustomNumeric","#,###,###,##0.00")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","INVOICE","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","INVOICE","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","INVOICE","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","INVOICE","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","INVOICE","MinWidth","130")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","INVOICE","VisibleIndex","6")
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlP","Icon","DCS-OFF")
+'	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlP","Fixed","Left")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlP","MinWidth","25")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlP","MaxWidth","25")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlP","AllowEdit",False)
+'	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlP","ShowCaption",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlP","VisibleIndex","7")
+	
+	F.Data.DataTable.Select("DTAPCHECKS","DocCntrlP = 'DCS-ON'",V.Local.sSelect)
+	F.Intrinsic.Control.If(V.Local.sSelect.IsNotNoReturn)
+		F.Intrinsic.String.Split(V.Local.sSelect,"*!*",V.Local.sSelect)
+		F.Intrinsic.Control.For(V.Local.iCnt,0,V.Local.sSelect.UBound,1)
+			Gui.frmAPCheck.GSGCAPCheck.SetCellAppearance("gvAPCheck",7,V.Local.sSelect(V.Local.iCnt),"Icon","DCS-ON")
+		F.Intrinsic.Control.Next(V.Local.iCnt)
+	F.Intrinsic.Control.EndIf
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PO","Caption","PO")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PO","DisplayCustomNumeric","#,###,###,##0.00")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PO","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PO","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PO","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PO","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PO","MinWidth","65")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PO","CellForeColor","Blue")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PO","VisibleIndex","8")
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlR","Icon","DCS-OFF")
+'	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlR","Fixed","Left")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlR","MinWidth","25")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlR","MaxWidth","25")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlR","AllowEdit",False)
+'	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlR","ShowCaption",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DocCntrlR","VisibleIndex","9")
+	
+	F.Data.DataTable.Select("DTAPCHECKS","DocCntrlR = 'DCS-ON'",V.Local.sSelect)
+	F.Intrinsic.Control.If(V.Local.sSelect.IsNotNoReturn)
+		F.Intrinsic.String.Split(V.Local.sSelect,"*!*",V.Local.sSelect)
+		F.Intrinsic.Control.For(V.Local.iCnt,0,V.Local.sSelect.UBound,1)
+			Gui.frmAPCheck.GSGCAPCheck.SetCellAppearance("gvAPCheck",9,V.Local.sSelect(V.Local.iCnt),"Icon","DCS-ON")
+		F.Intrinsic.Control.Next(V.Local.iCnt)
+	F.Intrinsic.Control.EndIf
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","RECEIVER","Caption","RECEIVER")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","RECEIVER","DisplayCustomNumeric","#,###,###,##0.00")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","RECEIVER","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","RECEIVER","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","RECEIVER","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","RECEIVER","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","RECEIVER","MinWidth","85")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","RECEIVER","VisibleIndex","10")
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_DESC","Caption","CHECK_DESC")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_DESC","DisplayCustomNumeric","#,###,###,##0.00")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_DESC","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_DESC","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_DESC","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_DESC","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_DESC","MinWidth","150")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_DESC","VisibleIndex","11")
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_TRANSACTION","Caption","GROSS_AMT")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_TRANSACTION","DisplayCustomNumeric","#,###,###,##0.00")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_TRANSACTION","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_TRANSACTION","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_TRANSACTION","AllowEdit",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_TRANSACTION","ReadOnly",False)
+	'Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_TRANSACTION","CellBackColor","LightYellow")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_TRANSACTION","MinWidth","125")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_TRANSACTION","VisibleIndex","12")
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DISCOUNT_INVOICE","Caption","DISCOUNT_AMT")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DISCOUNT_INVOICE","DisplayCustomNumeric","#,###,###,##0.00")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DISCOUNT_INVOICE","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DISCOUNT_INVOICE","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DISCOUNT_INVOICE","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DISCOUNT_INVOICE","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DISCOUNT_INVOICE","MinWidth","125")	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","DISCOUNT_INVOICE","VisibleIndex","13")
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_NET","Caption","CHECK_NET_AMT")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_NET","DisplayCustomNumeric","#,###,###,##0.00")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_NET","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_NET","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_NET","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_NET","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_NET","MinWidth","125")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","AMT_NET","VisibleIndex","14")
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","USERID","Caption","USERID")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","USERID","DisplayCustomNumeric","#,###,###,##0.00")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","USERID","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","USERID","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","USERID","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","USERID","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","USERID","MinWidth","105")	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","USERID","VisibleIndex","15")
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","TYPE","Caption","TYPE")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","TYPE","DisplayCustomNumeric","#,###,###,##0.00")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","TYPE","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","TYPE","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","TYPE","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","TYPE","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","TYPE","MinWidth","100")	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","TYPE","VisibleIndex","16")	
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_TIME","Caption","CHECK_TIME")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_TIME","DisplayCustomDateTime","t")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_TIME","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_TIME","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_TIME","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_TIME","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_TIME","MinWidth","85")	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","CHECK_TIME","VisibleIndex","17")	
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PARTIAL_FLAG","Caption","PARTIAL")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PARTIAL_FLAG","DisplayCustomDateTime","t")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PARTIAL_FLAG","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PARTIAL_FLAG","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PARTIAL_FLAG","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PARTIAL_FLAG","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PARTIAL_FLAG","MinWidth","85")	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PARTIAL_FLAG","VisibleIndex","18")	
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","REFUND_FLAG","Caption","REFUND")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","REFUND_FLAG","DisplayCustomDateTime","t")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","REFUND_FLAG","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","REFUND_FLAG","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","REFUND_FLAG","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","REFUND_FLAG","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","REFUND_FLAG","MinWidth","85")	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","REFUND_FLAG","VisibleIndex","19")		
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PAYMENT_CURR","Caption","CURR")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PAYMENT_CURR","DisplayCustomDateTime","t")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PAYMENT_CURR","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PAYMENT_CURR","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PAYMENT_CURR","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PAYMENT_CURR","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PAYMENT_CURR","MinWidth","50")	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","PAYMENT_CURR","VisibleIndex","20")		
+
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","POST_DATE","Caption","POST_DATE")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","POST_DATE","DisplayCustomDateTime","d")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","POST_DATE","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","POST_DATE","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","POST_DATE","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","POST_DATE","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","POST_DATE","MinWidth","85")	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","POST_DATE","VisibleIndex","21")	
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL","Caption","GL_ACCOUNT")
+	'Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL","DisplayCustomDateTime","d")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL","MinWidth","85")	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL","VisibleIndex","22")	
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL_DESC","Caption","GL_DESCRIPTION")
+	'Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL","DisplayCustomDateTime","d")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL_DESC","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL_DESC","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL_DESC","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL_DESC","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL_DESC","MinWidth","85")	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL_DESC","VisibleIndex","23")	
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","TEXT","Caption","INVOICE_NOTES")
+	'Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","GL","DisplayCustomDateTime","d")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","TEXT","HeaderHAlignment","Center")
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","TEXT","HeaderFontBold",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","TEXT","AllowEdit",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","TEXT","ReadOnly",True)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","TEXT","MinWidth","85")	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","TEXT","VisibleIndex","24")	
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","VENDINV","Visible",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","RECVRPO","Visible",False)
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck","NET_CK_AMT","Visible",False)
+	
+	
+	Gui.frmAPCheck.GSGCAPCheck.AddSummaryItem("gvAPCheck","AMT_TRANSACTION","","Sum","","","n2")
+	Gui.frmAPCheck.GSGCAPCheck.AddSummaryItem("gvAPCheck","AMT_NET","","Sum","","","n2")
+	Gui.frmAPCheck.GSGCAPCheck.AddSummaryItem("gvAPCheck","DISCOUNT_INVOICE","","Sum","","","n2")
+	Gui.frmAPCheck.GSGCAPCheck.AddSummaryItem("gvAPCheck","INVOICE","","Count","INVOICE COUNT = ","","n0")
+	
+	Gui.frmAPCheck.GSGCAPCheck.ResumeLayout()
+	
+	Gui.frmAPCheck.GSGCAPCheck.SetColumnProperty("gvAPCheck", "CHECK_NUM", "GroupIndex", 0)
+	Gui.frmAPCheck.GSGCAPCheck.AddGridGroupSummaryItem("gvAPCheck", "NET_CK_AMT", "", "Sum","", "", "n2")
+	
+	
+	Gui.frmAPCheck.GSGCAPCheck.MainView("gvAPCheck")
+
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+	F.Intrinsic.Control.EndTry
+Program.Sub.LoadAPChecksGV.End
+
+Program.Sub.SetContextMenus.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+	Gui.frmAPCheck..ContextMenuCreate("ctxInvVar")
+	Gui.frmAPCheck.GSGCAPCheck.ContextMenuAttach("ctxInvVar")
+	Gui.frmAPCheck..ContextMenuAddItem("ctxInvVar","Refresh",0,"Refresh")
+	Gui.frmAPCheck..ContextMenuAddItem("ctxInvVar","Export",0,"Export")
+	Gui.frmAPCheck..ContextMenuAddItem("ctxInvVar","Reset Columns",0,"Reset Columns")
+	Gui.frmAPCheck..ContextMenuSetItemEventHandler("ctxInvVar","Refresh","MenuClickRefresh")
+	Gui.frmAPCheck..ContextMenuSetItemEventHandler("ctxInvVar","Export","MenuClickExport")
+	Gui.frmAPCheck..ContextMenuSetItemEventHandler("ctxInvVar","Reset Columns","MenuClickReset")
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+	F.Intrinsic.Control.EndTry
+Program.Sub.SetContextMenus.End
+
+Program.Sub.MenuClickRefresh.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	f.Intrinsic.Control.If(v.Global.bLoadData,=,True)
+		f.Intrinsic.Control.CallSub(Serialize)
+	f.Intrinsic.Control.EndIf
+
+	f.Intrinsic.Control.BlockEvents
+	'Modified by Deni Y 11/25/20, turned off command(s) below since it's flagged as error by GABErrorScanner
+'	gui.frmRouters.frameOption.Enabled(False)
+	f.Intrinsic.Control.CallSub(LoadDtAPChecks)
+	f.Intrinsic.Control.UnBlockEvents
+'	gui.frmRouters.frameOption.Enabled(True)
+	F.Intrinsic.Control.CallSub(Deserialize)
+	gui.frmAPCheck.lblChecktotal.Visible(True)
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+	F.Intrinsic.Control.EndTry
+Program.Sub.MenuClickRefresh.End
+
+Program.Sub.MenuClickExport.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	V.Local.sForm.Declare(String, "frmAPCheck")
+	V.Local.sControl.Declare(String, "GSGCAPCheck")
+	V.Local.sFileExport.Declare(String)
+	V.Local.sMsg.Declare(String)
+	V.Local.sDate.Declare(String)
+	V.Local.sTime.Declare(String)
+	V.Local.bExcel.Declare(Boolean)
+	V.Local.bFileLocked.Declare(Boolean)
+	
+	F.Automation.MSExcel.CheckPresence(V.Local.bExcel)
+	F.Intrinsic.String.DateString(V.Ambient.Date,V.Local.sDate)
+	F.Intrinsic.String.TimeString(V.Ambient.Time,V.Local.sTime)
+	F.Intrinsic.Control.If(V.Local.bExcel)
+		F.Intrinsic.String.Build("{0}\GCG_6221_Check_Detail_Export_{1}_{2}.xlsx",V.Caller.LocalGSSTempDir,V.Local.sDate,V.Local.sTime,V.Local.sFileExport)
+		F.Intrinsic.File.IsFileLocked(V.Local.sFileExport,V.Local.bFileLocked)
+		F.Intrinsic.Control.If(V.Local.bFileLocked)
+			F.Intrinsic.String.Build("File is already open. Please close and export again.{0}File : {1}",V.Ambient.NewLine,V.Local.sFileExport,V.Local.sMsg)
+			F.Intrinsic.UI.Msgbox(V.Local.sMsg,"File In Use")
+		F.Intrinsic.Control.Else
+			Gui.[V.Local.sForm].[V.Local.sControl].Export(V.Local.sFileExport,"xlsx")
+			F.Intrinsic.Task.ShellExec(0,"",V.Local.sFileExport,"","",1)
+		F.Intrinsic.Control.EndIf
+	F.Intrinsic.Control.Else
+		F.Intrinsic.String.Build("{0}\GCG_6221_Check_Detail_Export_{1}_{2}.csv",V.Caller.LocalGssTempDir,V.Local.sDate,V.Local.sTime,V.Local.sFileExport)
+		F.Intrinsic.File.IsFileLocked(V.Local.sFileExport,V.Local.bFileLocked)
+		F.Intrinsic.Control.If(V.Local.bFileLocked)
+			F.Intrinsic.String.Build("File is already open. Please close and export again.{0}File: {1}",V.Ambient.NewLine,V.Local.sFileExport,V.Local.sMsg)
+			F.Intrinsic.UI.Msgbox(V.Local.sMsg,"File In Use")
+		F.Intrinsic.Control.Else
+			Gui.[V.Local.sForm].[V.Local.sControl].Export(V.Local.sFileExport,"csv")
+		F.Intrinsic.Control.EndIf
+		F.Intrinsic.Task.ShellExec(0,"",V.Local.sFileExport,"","",1)
+	F.Intrinsic.Control.EndIf
+
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+	F.Intrinsic.Control.EndTry
+Program.Sub.MenuClickExport.End
+
+Program.Sub.MenuClickReset.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+	V.Local.sSerialize.Declare
+	
+'	F.Global.Registry.AddValue(V.Caller.User,V.Caller.CompanyCode,"gvAPCheck",6221,1000,False,"Serialize",False,0,-999.0,1/1/1980,12:00:00 AM,"")
+	
+	'v.Global.bLoadData.set(False)
+	'F.Intrinsic.Control.CallSub(cmdRefresh_Click)
+	gui.frmAPCheck.lblChecktotal.Visible(false)
+	F.Intrinsic.Control.BlockEvents
+	f.Intrinsic.Control.CallSub(lockscreen)
+	F.Intrinsic.Control.CallSub(LoadAPChecksGV)
+	F.Intrinsic.Control.CallSub(enablescreen)
+	F.Intrinsic.Control.UnBlockEvents
+	gui.frmAPCheck.lblChecktotal.Visible(True)
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+	F.Intrinsic.Control.EndTry
+Program.Sub.MenuClickReset.End
+
+Program.Sub.Deserialize.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+	V.Local.sSerialize.Declare
+
+	'Delete old registry records
+	F.Global.Registry.ReadValue(V.Caller.User,V.Caller.CompanyCode,"gvAPCheck",6221,0,5,"",V.Local.sSerialize)
+	F.Intrinsic.Control.If(V.Local.sSerialize,<>,"")
+		F.ODBC.Connection!common.OpenConnection(V.Ambient.Ccon,V.Ambient.Cuser,V.Ambient.Cpass)
+		F.ODBC.Connection!common.Execute("Delete From Gs_Registry Where Reg_ID = 6221 And Seq < 1000;")
+		F.ODBC.Connection!common.Close
+	F.Intrinsic.Control.EndIf
+	
+	F.Global.Registry.ReadValue(V.Caller.User,V.Caller.CompanyCode, "gvAPCheck",6221,1000,6,"",V.Local.sSerialize)
+	F.Intrinsic.Control.If(V.Local.sSerialize.Trim,<>,"")
+		GUI.frmAPCheck.GSGCAPCheck.Deserialize(V.Local.sSerialize)
+	F.Intrinsic.Control.EndIf
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+	F.Intrinsic.Control.EndTry	
+Program.Sub.Deserialize.End
+
+Program.Sub.cmdRefresh_Click.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+		gui.frmAPCheck.lblChecktotal.Visible(false)
+		
+	F.Intrinsic.Control.If(V.Global.bLoadData,=,True)
+		F.Intrinsic.Control.CallSub(Serialize)
+	F.Intrinsic.Control.EndIf
+
+	F.Intrinsic.Control.BlockEvents
+	f.Intrinsic.Control.CallSub(lockscreen)
+	F.Intrinsic.Control.CallSub(LoadAPChecksGV)
+	F.Intrinsic.Control.CallSub(enablescreen)
+	F.Intrinsic.Control.UnBlockEvents
+	F.Intrinsic.Control.CallSub(Deserialize)
+	gui.frmAPCheck.lblChecktotal.Visible(True)
+	
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End 
+	F.Intrinsic.Control.EndTry	
+Program.Sub.cmdRefresh_Click.End
+
+Program.Sub.LockScreen.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+	'Modified by Deni Y 11/25/20, turned off command(s) below since it's flagged as error by GABErrorScanner
+	'GUI.FrmMaster.GSGCAPCheck.Enabled(False)
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End 
+	F.Intrinsic.Control.EndTry
+Program.Sub.LockScreen.End
+
+Program.Sub.EnableScreen.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	GUI.FrmAPCheck.GSGCAPCheck.Enabled(True)
+	gui.frmAPCheck.lbl2.Visible(False)
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End 
+	F.Intrinsic.Control.EndTry
+Program.Sub.EnableScreen.End
+
+Program.Sub.GSGCAPCheck_RowCellClick.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare	
+	V.Local.sPURCHASE_ORDER.Declare
+	V.Local.sParams.Declare
+	v.Local.sInvoice.Declare
+	v.Local.sVendor.Declare
+	V.Local.sVenInv.Declare
+	v.Local.sReceiver.Declare
+	V.Local.iPID.Declare
+	
+	F.Intrinsic.Control.BlockEvents	
+	F.Intrinsic.Control.SelectCase(v.Args.Column)
+		'Open PO in view mode
+		F.Intrinsic.Control.Case("PO")
+			Gui.frmAPCheck.GSGCAPCheck.GetCellValueByColumnName("gvAPCheck","PO",v.Args.RowIndex,v.Local.sPURCHASE_ORDER)			
+				F.Intrinsic.String.Concat("V!*!",V.Local.sPURCHASE_ORDER,"!*!",V.Local.sParams)
+				F.Intrinsic.Control.CallSub(LockScreen)
+				F.Global.General.CallWrapperASync(175200,V.Local.sParams)
+				F.Intrinsic.Control.CallSub(EnableScreen)
+		'open DCC for invoice
+		F.Intrinsic.Control.CaseAny("DocCntrlI","DOCCNTRLI")
+		V.Local.sInvoice.Set(V.DataTable.DTAPCHECKS(V.Args.RowIndex).INVOICE!FieldValtrim)
+		V.Local.sVendor.Set(V.DataTable.DTAPCHECKS(V.Args.RowIndex).VENDOR!FieldValtrim)
+		f.Intrinsic.String.Concat(v.Local.sVendor,v.Local.sInvoice,v.Local.sVenInv)
+		F.Global.DocumentControl.Invoke(V.Local.sVenInv,11,"(AP Invoice)",V.Local.iPID)		
+		'open DCC for PO
+		F.Intrinsic.Control.CaseAny("DocCntrlP","DOCCNTRLP")
+		V.Local.sPURCHASE_ORDER.Set(V.DataTable.DTAPCHECKS(V.Args.RowIndex).PO!FieldValtrim)
+		F.Global.DocumentControl.Invoke(V.Local.sPURCHASE_ORDER,60,"(Purchase Order)",V.Local.iPID)
+		'open DCC for receiver
+		F.Intrinsic.Control.CaseAny("DocCntrlR","DOCCNTRLR")
+		V.Local.sReceiver.Set(V.DataTable.DTAPCHECKS(V.Args.RowIndex).Receiver!FieldValtrim)
+		f.Intrinsic.String.Concat(v.Local.sReceiver,V.DataTable.DTAPCHECKS(V.Args.RowIndex).PO!FieldValtrim,"001",v.Local.sReceiver)
+		F.Global.DocumentControl.Invoke(V.Local.sReceiver,61,"(PO Receiver)",V.Local.iPID)		
+		
+	F.Intrinsic.Control.EndSelect	
+	F.Intrinsic.Control.UnBlockEvents
+	
+	
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End 
+	F.Intrinsic.Control.EndTry
+Program.Sub.GSGCAPCheck_RowCellClick.End
+
+Program.Sub.Comments.Start
+${$5$}$2.0.0.0$}$2
+${$6$}$Angel$}$20220201112330746$}$KXl0r/FkrMYwb/r4ukQ87aOTsTN7X2ea+CZZiyR8WzuDH0dL/M2JlD/z8Sa78Jflff2s10LhCHI=
+Program.Sub.Comments.End
